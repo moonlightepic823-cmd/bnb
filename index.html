@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Billions Spin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0f19;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+canvas {
+  background: #11162a;
+  border-radius: 50%;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #4da3ff;
+  color: #000;
+}
+
+.result {
+  margin-top: 15px;
+  font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>🎡 Billions Spin</h1>
+  <canvas id="wheel" width="300" height="300"></canvas>
+  <br>
+  <button onclick="spin()">SPIN</button>
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+
+const items = [
+  "TRY AGAIN",
+  "LUCKY",
+  "NICE",
+  "WOW",
+  "GOOD",
+  "PLAY MORE"
+];
+
+const colors = [
+  "#ff7675",
+  "#74b9ff",
+  "#55efc4",
+  "#ffeaa7",
+  "#a29bfe",
+  "#fab1a0"
+];
+
+const center = canvas.width / 2;
+const radius = center - 10;
+let angle = 0;
+let spinning = false;
+
+function drawWheel() {
+  const slice = (2 * Math.PI) / items.length;
+  for (let i = 0; i < items.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(center, center);
+    ctx.fillStyle = colors[i];
+    ctx.arc(center, center, radius, slice * i + angle, slice * (i + 1) + angle);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(center, center);
+    ctx.rotate(slice * i + slice / 2 + angle);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#000";
+    ctx.font = "14px Arial";
+    ctx.fillText(items[i], radius - 15, 5);
+    ctx.restore();
+  }
+}
+
+function spin() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById("result").innerText = "";
+
+  let spinAngle = Math.random() * 2000 + 2000;
+  let start = null;
+
+  function animate(timestamp) {
+    if (!start) start = timestamp;
+    const progress = timestamp - start;
+    angle += 0.1;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawWheel();
+
+    if (progress < spinAngle) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      showResult();
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function showResult() {
+  const slice = (2 * Math.PI) / items.length;
+  const index = Math.floor(((2 * Math.PI - angle) % (2 * Math.PI)) / slice);
+  document.getElementById("result").innerText =
+    "Result: " + items[index];
+}
+
+drawWheel();
+</script>
+</body>
+</html>
